@@ -94,10 +94,10 @@ class HTTPClient(object):
                 six.raise_from(exceptions.StatusError(error), error)
 
     def _request(self, method, url, params, parser, stream=False, files=None,
-                 headers={}, data=None):
+                 headers={}, data=None, **kwargs):
         # Do HTTP request (synchronously)
         res = self._do_request(method, url, params=params, stream=stream,
-                               files=files, headers=headers, data=data)
+                               files=files, headers=headers, data=data, **kwargs)
 
         if stream:
             # Raise exceptions for response status
@@ -124,7 +124,7 @@ class HTTPClient(object):
     @pass_defaults
     def request(self, path,
                 args=[], files=[], opts={}, stream=False,
-                decoder=None, headers={}, data=None):
+                decoder=None, headers={}, data=None, **kwargs):
         """Makes an HTTP request to the IPFS daemon.
 
         This function returns the contents of the HTTP response from the IPFS
@@ -167,7 +167,7 @@ class HTTPClient(object):
         parser = encoding.get_encoding(decoder if decoder else "none")
 
         return self._request(method, url, params, parser, stream,
-                             files, headers, data)
+                             files, headers, data, **kwargs)
 
     @pass_defaults
     def download(self, path, args=[], filepath=None, opts={},
