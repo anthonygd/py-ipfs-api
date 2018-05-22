@@ -7,6 +7,7 @@ import sys
 import time
 import unittest
 import logging
+import uuid
 
 import pytest
 
@@ -96,63 +97,86 @@ class IpfsApiTest(unittest.TestCase):
 
     ## test_add_multiple_from_list
     fake_file  = 'fake_dir/fsdfgh'
-    fake_file_only_res = {'Name': 'fsdfgh',
-                          'Hash': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX'}
+    fake_file_only_res = {'Hash': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX',
+                          'Name': 'fsdfgh', 'Size': '16'}
     fake_file_dir_res = [
-        {'Name': 'fsdfgh', 'Hash': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX'},
-        {'Name': '',       'Hash': 'Qme7vmxd4LAAYL7vpho3suQeT3gvMeLLtPdp7myCb9Db55'}
+        {'Hash': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX',
+         'Name': 'fsdfgh', 'Size': '16'},
+        {'Hash': 'Qme7vmxd4LAAYL7vpho3suQeT3gvMeLLtPdp7myCb9Db55',
+         'Name': '',       'Size': '68'}
     ]
     fake_file2 = 'fake_dir/popoiopiu'
     fake_files_res = [
-            {'Name': 'fsdfgh', 'Hash': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX'},
-            {'Name': 'popoiopiu', 'Hash': 'QmYAhvKYu46rh5NcHzeu6Bhc7NG9SqkF9wySj2jvB74Rkv'}]
+            {'Hash': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX',
+             'Name': 'fsdfgh',    'Size': '16'},
+            {'Hash': 'QmYAhvKYu46rh5NcHzeu6Bhc7NG9SqkF9wySj2jvB74Rkv',
+             'Name': 'popoiopiu', 'Size': '23'}]
 
     ## test_add_multiple_from_dirname
     fake_dir_test2 = 'fake_dir/test2'
     fake_dir_res = [
-            {'Name': 'test2/fssdf', 'Hash': 'Qmb1NPqPzdHCMvHRfCkk6TWLcnpGJ71KnafacCMm6TKLcD'},
-            {'Name': 'test2/llllg', 'Hash': 'QmNuvmuFeeWWpxjCQwLkHshr8iqhGLWXFzSGzafBeawTTZ'},
-            {'Name': 'test2', 'Hash': 'QmStL6TPbJfMHQhHjoVT93kCynVx3GwLf7xwgrtScqABhU'},
+            {'Hash': 'QmStL6TPbJfMHQhHjoVT93kCynVx3GwLf7xwgrtScqABhU',
+             'Name': 'test2',                 'Size': '297'},
             {'Hash': 'QmV3n14G8iQoNG8zpHCUZnmQpcQbhEfhQZ8NHvUEdoiXAN',
-             'Name': 'test2/high'},
+             'Name': 'test2/high',            'Size': '114'},
             {'Hash': 'QmZazHsY4nbhRTHTEp5SUWd4At6aSXia1kxEuywHTicayE',
-             'Name': 'test2/high/five'},
+             'Name': 'test2/high/five',       'Size': '64'},
             {'Hash': 'QmW8tRcpqy5siMNAU9Lx3GADAxQbVUrx8XJGFDjkd6vqLT',
-             'Name': 'test2/high/five/dummy'}]
+             'Name': 'test2/high/five/dummy', 'Size': '13'},
+            {'Hash': 'Qmb1NPqPzdHCMvHRfCkk6TWLcnpGJ71KnafacCMm6TKLcD',
+             'Name': 'test2/fssdf',           'Size': '22'},
+            {'Hash': 'QmNuvmuFeeWWpxjCQwLkHshr8iqhGLWXFzSGzafBeawTTZ',
+             'Name': 'test2/llllg',           'Size': '17'}]
 
     ## test_add_filepattern_from_dirname
     pattern = '**/fss*'
     # the hash of the folder is not same as above because the content of the folder
     # added is not same.
     fake_dir_fnpattern_res = [
-            {'Name': 'fake_dir/test2/fssdf', 'Hash': 'Qmb1NPqPzdHCMvHRfCkk6TWLcnpGJ71KnafacCMm6TKLcD'},
-            {'Name': 'fake_dir/test2',       'Hash': 'QmT5rV6EsKNSW619SntLrkCxbUXXQh4BrKm3JazF2zEgEe'},
-            {'Name': 'fake_dir',             'Hash': 'QmbPzQruAEFjUU3gQfupns6b8USr8VrD9H71GrqGDXQSxm'}]
+            {'Name': 'fake_dir/test2/fssdf', 'Hash': 'Qmb1NPqPzdHCMvHRfCkk6TWLcnpGJ71KnafacCMm6TKLcD', 'Size': '22'},
+            {'Name': 'fake_dir/test2',       'Hash': 'QmT5rV6EsKNSW619SntLrkCxbUXXQh4BrKm3JazF2zEgEe', 'Size': '73'},
+            {'Name': 'fake_dir',             'Hash': 'QmbPzQruAEFjUU3gQfupns6b8USr8VrD9H71GrqGDXQSxm', 'Size': '124'}]
 
     ## test_add_filepattern_subdir_wildcard
     pattern2 = 'test2/**/high'
     fake_dir_fnpattern2_res = [
-            {'Hash': 'QmUXuNHpV6cdeTngSkEMbP2nQDPuyE2MFXNYtTXzZvLZHf', 'Name': 'fake_dir'},
-            {'Hash': 'QmZGuwqaXMmSwJcfTsvseHwy3mvDPD9zrs9WVowAZcQN4W', 'Name': 'fake_dir/test2'},
-            {'Hash': 'QmV3n14G8iQoNG8zpHCUZnmQpcQbhEfhQZ8NHvUEdoiXAN', 'Name': 'fake_dir/test2/high'},
-            {'Hash': 'QmZazHsY4nbhRTHTEp5SUWd4At6aSXia1kxEuywHTicayE', 'Name': 'fake_dir/test2/high/five'},
-            {'Hash': 'QmW8tRcpqy5siMNAU9Lx3GADAxQbVUrx8XJGFDjkd6vqLT', 'Name': 'fake_dir/test2/high/five/dummy'}]
+            {'Hash': 'QmUXuNHpV6cdeTngSkEMbP2nQDPuyE2MFXNYtTXzZvLZHf',
+             'Name': 'fake_dir',                       'Size': '216'},
+            {'Hash': 'QmZGuwqaXMmSwJcfTsvseHwy3mvDPD9zrs9WVowAZcQN4W',
+             'Name': 'fake_dir/test2',                 'Size': '164'},
+            {'Hash': 'QmV3n14G8iQoNG8zpHCUZnmQpcQbhEfhQZ8NHvUEdoiXAN',
+             'Name': 'fake_dir/test2/high',            'Size': '114'},
+            {'Hash': 'QmZazHsY4nbhRTHTEp5SUWd4At6aSXia1kxEuywHTicayE',
+             'Name': 'fake_dir/test2/high/five',       'Size': '64'},
+            {'Hash': 'QmW8tRcpqy5siMNAU9Lx3GADAxQbVUrx8XJGFDjkd6vqLT',
+             'Name': 'fake_dir/test2/high/five/dummy', 'Size': '13'}]
 
 
     ## test_add_recursive
     fake_dir = 'fake_dir'
     fake_dir_recursive_res = [
-            {'Hash': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX', 'Name': 'fake_dir/fsdfgh'},
-            {'Hash': 'QmYAhvKYu46rh5NcHzeu6Bhc7NG9SqkF9wySj2jvB74Rkv', 'Name': 'fake_dir/popoiopiu'},
-            {'Hash': 'Qmb1NPqPzdHCMvHRfCkk6TWLcnpGJ71KnafacCMm6TKLcD', 'Name': 'fake_dir/test2/fssdf'},
-            {'Hash': 'QmV3n14G8iQoNG8zpHCUZnmQpcQbhEfhQZ8NHvUEdoiXAN', 'Name': 'fake_dir/test2/high'},
-            {'Hash': 'QmZazHsY4nbhRTHTEp5SUWd4At6aSXia1kxEuywHTicayE', 'Name': 'fake_dir/test2/high/five'},
-            {'Hash': 'QmW8tRcpqy5siMNAU9Lx3GADAxQbVUrx8XJGFDjkd6vqLT', 'Name': 'fake_dir/test2/high/five/dummy'},
-            {'Hash': 'QmNuvmuFeeWWpxjCQwLkHshr8iqhGLWXFzSGzafBeawTTZ', 'Name': 'fake_dir/test2/llllg'},
-            {'Hash': 'QmeMbJSHNCesAh7EeopackUdjutTJznum1Fn7knPm873Fe', 'Name': 'fake_dir/test3/ppppoooooooooo'},
-            {'Hash': 'QmStL6TPbJfMHQhHjoVT93kCynVx3GwLf7xwgrtScqABhU', 'Name': 'fake_dir/test2'},
-            {'Hash': 'QmRphRr6ULDEj7YnXpLdnxhnPiVjv5RDtGX3er94Ec6v4Q', 'Name': 'fake_dir/test3'},
-            {'Hash': 'QmNx8xVu9mpdz9k6etbh2S8JwZygatsZVCH4XhgtfUYAJi', 'Name': 'fake_dir'}]
+            {'Hash': 'QmNx8xVu9mpdz9k6etbh2S8JwZygatsZVCH4XhgtfUYAJi',
+             'Name': 'fake_dir',                       'Size': '610'},
+            {'Hash': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX',
+             'Name': 'fake_dir/fsdfgh',                'Size': '16'},
+            {'Hash': 'QmYAhvKYu46rh5NcHzeu6Bhc7NG9SqkF9wySj2jvB74Rkv',
+             'Name': 'fake_dir/popoiopiu',             'Size': '23'},
+            {'Hash': 'QmStL6TPbJfMHQhHjoVT93kCynVx3GwLf7xwgrtScqABhU',
+             'Name': 'fake_dir/test2',                 'Size': '297'},
+            {'Hash': 'Qmb1NPqPzdHCMvHRfCkk6TWLcnpGJ71KnafacCMm6TKLcD',
+             'Name': 'fake_dir/test2/fssdf',           'Size': '22'},
+            {'Hash': 'QmV3n14G8iQoNG8zpHCUZnmQpcQbhEfhQZ8NHvUEdoiXAN',
+             'Name': 'fake_dir/test2/high',            'Size': '114'},
+            {'Hash': 'QmZazHsY4nbhRTHTEp5SUWd4At6aSXia1kxEuywHTicayE',
+             'Name': 'fake_dir/test2/high/five',       'Size': '64'},
+            {'Hash': 'QmW8tRcpqy5siMNAU9Lx3GADAxQbVUrx8XJGFDjkd6vqLT',
+             'Name': 'fake_dir/test2/high/five/dummy', 'Size': '13'},
+            {'Hash': 'QmNuvmuFeeWWpxjCQwLkHshr8iqhGLWXFzSGzafBeawTTZ',
+             'Name': 'fake_dir/test2/llllg',           'Size': '17'},
+            {'Hash': 'QmRphRr6ULDEj7YnXpLdnxhnPiVjv5RDtGX3er94Ec6v4Q',
+             'Name': 'fake_dir/test3',                 'Size': '76'},
+            {'Hash': 'QmeMbJSHNCesAh7EeopackUdjutTJznum1Fn7knPm873Fe',
+             'Name': 'fake_dir/test3/ppppoooooooooo',  'Size': '16'}]
 
     ## test_refs
     refs_res = [{'Err': '', 'Ref': 'QmQcCtMgLVwvMQGu6mvsRYLjwqrZJcYtH4mboM9urWW9vX'},
@@ -577,7 +601,7 @@ class IpfsApiMFSTest(unittest.TestCase):
             self.api.files_stat(self.test_directory_path)
 
 
-@skipIfOffline()
+skipIfOffline()
 class TestBlockFunctions(unittest.TestCase):
     def setUp(self):
         self.api = ipfsapi.Client()
@@ -712,7 +736,6 @@ class IpfsApiObjectTest(unittest.TestCase):
         # Verify the correct content was put
         self.assertEqual(no_links['Hash'], 'QmXg9Pp2ytZ14xgmQjYEiHjVjMFXzCVVEcRTWJBmLgR39V')
         self.assertEqual(links['Hash'], 'QmZZmY4KCu9r3e7M2Pcn46Fc5qbn6NpzaAGaYb22kbfTqm')
-        self.assertEqual(links['Links'][0]['Hash'], 'QmXg9Pp2ytZ14xgmQjYEiHjVjMFXzCVVEcRTWJBmLgR39V')
 
         # Get the objects from the DAG
         get_no_links = self.api.object_get('QmXg9Pp2ytZ14xgmQjYEiHjVjMFXzCVVEcRTWJBmLgR39V')
@@ -806,6 +829,96 @@ class IpfsApiBitswapTest(unittest.TestCase):
 
         result = self.api.bitswap_unwant(key='QmZTR5bcpQD7cFgTorqxZDYaew1Wqgfbd2ud9QqGPAkK2V')
         self.assertTrue(result is not None)
+
+@skipIfOffline()
+class IpfsApiPubSubTest(unittest.TestCase):
+
+    def setUp(self):
+        self.api = ipfsapi.Client()
+
+    def createTestChannel(self):
+        """
+        Creates a unique topic for testing purposes
+        """
+        return "{}.testing".format(uuid.uuid4())
+
+    def test_pubsub_pub_sub(self):
+        """
+        We test both publishing and subscribing at
+        the same time because we cannot verify that
+        something has been properly published unless
+        we subscribe to that channel and receive it.
+        Likewise, we cannot accurately test a subscription 
+        without publishing something on the topic we are subscribed
+        to.
+        """
+        # the topic that will be published/subscribed to
+        topic = self.createTestChannel()
+        # the message that will be published
+        message = 'hello'
+
+        expected_data = 'aGVsbG8='	
+        expected_topicIDs = [topic]
+
+
+        # get the subscription stream
+        with self.api.pubsub_sub(topic) as sub:
+
+            # make sure something was actually returned from the subscription
+            assert sub is not None
+
+            # publish a message to topic
+            self.api.pubsub_pub(topic, message)
+
+            # get the message
+            sub_data = sub.read_message()
+
+            # assert that the returned dict has the following keys
+            assert 'data' in sub_data
+            assert 'topicIDs' in sub_data
+
+            assert sub_data['data'] == expected_data
+            assert sub_data['topicIDs'] == expected_topicIDs
+
+    def test_pubsub_ls(self):
+        """
+        Testing the ls, assumes we are able
+        to at least subscribe to a topic
+        """
+        topic = self.createTestChannel()
+        expected_return = { 'Strings': [topic] }
+
+        # subscribe to the topic testing
+        sub = self.api.pubsub_sub(topic)
+
+        channels = None
+        try:
+            # grab the channels we're subscribed to
+            channels = self.api.pubsub_ls()
+        finally:
+            sub.close()
+
+        assert channels == expected_return
+
+    def test_pubsub_peers(self):
+        """
+        Not sure how to test this since it fully depends
+        on who we're connected to. We may not even have
+        any peers
+        """
+        peers = self.api.pubsub_peers()
+
+        expected_return = {
+                'Strings': []
+                }
+
+        # make sure the Strings key is in the map thats returned
+        assert 'Strings' in peers
+
+        # ensure the value of 'Strings' is a list.
+        # The list may or may not be empty.
+        assert isinstance(peers['Strings'], list)
+
 
 # Run test for `.shutdown()` only as the last test in CI environments – it would be to annoying
 # during normal testing
